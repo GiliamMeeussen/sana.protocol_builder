@@ -2,6 +2,8 @@ const Config  = require('utils/config');
 const Helpers = require('utils/helpers');
 const App     = require('utils/sanaAppInstance');
 
+const ModalLayoutView = require('views/common/modalLayoutView');
+const FlowchartView = require('./flowchartView');
 
 module.exports = Marionette.ItemView.extend({
 
@@ -11,7 +13,8 @@ module.exports = Marionette.ItemView.extend({
         titleField: 'input#change-title',
         authorField: 'input#change-author',
         downloadButton: 'a#download-btn',
-        saveButton: 'a#save-btn'
+        saveButton: 'a#save-btn',
+        visualizeButton: 'a#visualize-btn',
     },
 
     events: {
@@ -19,6 +22,7 @@ module.exports = Marionette.ItemView.extend({
         'keyup @ui.authorField': '_save',
         'click @ui.downloadButton': '_download',
         'click @ui.saveButton':  '_saveProcedure',
+        'click @ui.visualizeButton': '_visualize',
     },
 
     modelEvents: {
@@ -66,4 +70,32 @@ module.exports = Marionette.ItemView.extend({
         });
     },
 
+    _visualize: function() {
+        console.log('visualizing');
+
+        const { nodes, edges } = this.model.generateGraph();
+
+        const nodesStrs = nodes.map((node, index) => {
+            return `node${index}=>operation: Page ${index}`;
+        });
+
+        const edgeStrs = edges.map(edge => {
+            const [node1, node2] = edge;
+            return `node${node1}->node${node2}`;            
+        });
+
+        const flowchartStr = nodesStrs.join('\n') + '\n' + edgeStrs.join('\n');
+
+        console.log(flowchartStr);
+
+        const diagram = flowchart.parse(flowchartStr);
+
+        const modalView = new ModalLayoutView({
+            title: i18n.t('Flowchart'),
+            bodyView: new FlowchartView(),
+        });
+        App().RootView.showModal(modalView);
+
+        diagram.drawSVG('flowchart');
+    }
 });

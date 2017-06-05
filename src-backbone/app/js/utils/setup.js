@@ -12,6 +12,7 @@ module.exports = {
         require('bootstrap');
         require('bootstrap-datepicker');
         require('bootstrap-select');
+        global.flowchart = require('flowchart.js');
 
         global._ = require('underscore');
         global.Backbone = require('backbone');

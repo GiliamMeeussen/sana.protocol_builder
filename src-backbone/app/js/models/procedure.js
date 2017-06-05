@@ -149,6 +149,73 @@ let Procedure = Backbone.Model.extend({
         });
     },
 
+    generateGraph: function() {
+        const nodes = [];
+        const edges = [];
+
+        // const conditionalNodes = [];
+
+        const pages = this.pages;
+
+        if (pages.length > 0) {
+            nodes.push(pages.at(0));
+            for (let i = 1; i < pages.length; i++) {
+                const prevPage = pages.at(i - 1);
+                const curPage = pages.at(i);
+                nodes.push(curPage);
+
+                edges.push([i - 1, i]);
+
+                const showIfs = curPage.showIfs.models;
+                for (let showIf of showIfs) {
+                    const rootConditionalNode = showIf.rootConditionalNode;
+                    const allConditionNodes = this._getChildrenConditionalNodes(rootConditionalNode);
+                    // conditionalNodes.push({curPage, allConditionNodes});
+
+                    for (let node of allConditionNodes) {
+                        const criteriaElement = node.get('criteria_element');
+                        if (criteriaElement && criteriaElement >= 0) {
+                            const {pageIndex, elementIndex} = this._findElement(criteriaElement);
+                            edges.push([pageIndex, i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return {
+            nodes, 
+            edges,
+            // conditionalNodes
+        };
+    },
+
+    _findElement: function(id) {
+        for (let i = 0; i < this.pages.length; i++) {
+            const page = this.pages.at(i);
+
+            for (let j = 0; j < page.elements.length; j++) {
+                const element = page.elements.at(j);
+                if (element.id === id) {
+                    return {
+                        pageIndex: i, 
+                        elementIndex: j
+                    };
+                }
+            }
+        }
+        return {pageIndex: -1, elementIndex: -1};
+    },
+
+    _getChildrenConditionalNodes: function(node) {
+        const nodes = [node];
+
+        const children = node.childrenNodes.models;
+        for (let child of children) {
+            nodes.push(...this._getChildrenConditionalNodes(child));
+        }
+        return nodes;
+    },
 });
 
 Procedure.ACTIVE_PAGE_CHANGE_EVENT = ACTIVE_PAGE_CHANGE_EVENT;

@@ -74,7 +74,10 @@ module.exports = Marionette.ItemView.extend({
         console.log('visualizing');
 
         const modalView = new ModalLayoutView({
-            title: i18n.t('Flowchart'),
+            title: i18n.t(
+                'Flowchart - Solid arrows represent the next question in sequential order. ' +
+                'Dashed arrows represent a condition depending on a previous question.'
+            ),
             bodyView: new FlowchartView(this.model),
         });
         App().RootView.showModal(modalView);
@@ -83,15 +86,32 @@ module.exports = Marionette.ItemView.extend({
         const { nodes, linearEdges, conditionalEdges } = this.model.generateGraph();
 
         const visNodes = new vis.DataSet(
-            nodes.map((node, index) => (
+            [
                 {
-                    id: index,
-                    label: node.label,
+                    id: -1,
+                    label: 'Start',
                     shape: 'box',
-                    group: node.page,
+                    group: -1,
                     widthConstraint: { maximum: 150 }
-                }
-            ))
+                },
+                ...nodes.map((node, index) => (
+                    {
+                        id: index,
+                        label: node.label,
+                        shape: 'box',
+                        group: node.page,
+                        widthConstraint: { maximum: 150 }
+                    }
+                )),
+                {
+                    id: -2,
+                    label: 'End',
+                    shape: 'box',
+                    group: -2,
+                    widthConstraint: { maximum: 150 }
+                },
+            ]
+
         );
 
         const edges = [
@@ -105,7 +125,17 @@ module.exports = Marionette.ItemView.extend({
                 to: node2,
                 arrows: 'to',
                 dashes: true
-            }))
+            })),
+            {
+                from: -1,
+                to: 0,
+                arrows: 'to'
+            },
+            {
+                from: nodes.length - 1,
+                to: -2,
+                arrows: 'to'
+            },
         ];
 
         const visEdges = new vis.DataSet(edges);

@@ -155,12 +155,6 @@ let Procedure = Backbone.Model.extend({
         const elementIdToNodeIndex = new Map();
 
         pages.forEach((page, i) => {
-            nodes.push({
-                label: `Begin Page ${i}`,
-                page: i
-            });
-            pageElementIndexToNodeIndex.set(`start${i}`, nodes.length - 1);
-
             const elements = page.elements.models;
             elements.forEach((element, j) => {
                 nodes.push({
@@ -169,13 +163,11 @@ let Procedure = Backbone.Model.extend({
                 });
                 pageElementIndexToNodeIndex.set(`${i},${j}`, nodes.length - 1);
                 elementIdToNodeIndex.set(element.id, nodes.length - 1);
-            });
 
-            nodes.push({
-                label: `End Page ${i}`,
-                page: i
+                if (j === 0) {
+                    pageElementIndexToNodeIndex.set(`start${i}`, nodes.length - 1);
+                }
             });
-            pageElementIndexToNodeIndex.set(`end${i}`, nodes.length - 1);
         });
 
         return { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex };

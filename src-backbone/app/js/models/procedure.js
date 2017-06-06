@@ -155,17 +155,26 @@ let Procedure = Backbone.Model.extend({
         const elementIdToNodeIndex = new Map();
 
         pages.forEach((page, i) => {
-            nodes.push(page);
+            nodes.push({
+                label: `Begin Page ${i}`,
+                page: i
+            });
             pageElementIndexToNodeIndex.set(`start${i}`, nodes.length - 1);
 
             const elements = page.elements.models;
             elements.forEach((element, j) => {
-                nodes.push(element);
+                nodes.push({
+                    label: element.get('question'),
+                    page: i
+                });
                 pageElementIndexToNodeIndex.set(`${i},${j}`, nodes.length - 1);
                 elementIdToNodeIndex.set(element.id, nodes.length - 1);
             });
 
-            nodes.push(page);
+            nodes.push({
+                label: `End Page ${i}`,
+                page: i
+            });
             pageElementIndexToNodeIndex.set(`end${i}`, nodes.length - 1);
         });
 
@@ -176,21 +185,23 @@ let Procedure = Backbone.Model.extend({
         const pages = this.pages;
 
         if (pages.length > 0) {
-            const { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex } = _preprocessNodes(pages);
+            const { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex } = this._preprocessNodes(pages);
 
             const linearEdges = [];
-            const conditionalEdges = [];
+            for (let i = 1; i < nodes.length; i++) {
+                linearEdges.push([i - 1, i]);
+            }
 
+            const conditionalEdges = [];
             for (let i = 1; i < pages.length; i++) {
                 const page = pages.at(i);
-                linearEdges.push([i - 1, i]);
 
                 const dependencies = this._getDependencies(page);
                 const pageIndex = pageElementIndexToNodeIndex.get(`start${i}`);
 
                 dependencies.forEach(id => {
                     const dependencyIndex = elementIdToNodeIndex.get(id);
-                    conditionalEdges.add([pageIndex, dependencyIndex]);
+                    conditionalEdges.push([pageIndex, dependencyIndex]);
                 });
             }
 

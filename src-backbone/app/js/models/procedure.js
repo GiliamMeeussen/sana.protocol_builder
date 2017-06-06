@@ -149,72 +149,78 @@ let Procedure = Backbone.Model.extend({
         });
     },
 
-    generateGraph: function() {
+    _preprocessNodes(pages) {
         const nodes = [];
-        const edges = [];
+        const pageElementIndexToNodeIndex = new Map();
+        const elementIdToNodeIndex = new Map();
 
-        // const conditionalNodes = [];
+        pages.forEach((page, i) => {
+            nodes.push(page);
+            pageElementIndexToNodeIndex.set(`start${i}`, nodes.length - 1);
 
+            const elements = page.elements.models;
+            elements.forEach((element, j) => {
+                nodes.push(element);
+                pageElementIndexToNodeIndex.set(`${i},${j}`, nodes.length - 1);
+                elementIdToNodeIndex.set(element.id, nodes.length - 1);
+            });
+
+            nodes.push(page);
+            pageElementIndexToNodeIndex.set(`end${i}`, nodes.length - 1);
+        });
+
+        return { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex };
+    },
+
+    generateGraph() {
         const pages = this.pages;
 
         if (pages.length > 0) {
-            nodes.push(pages.at(0));
+            const { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex } = _preprocessNodes(pages);
+
+            const linearEdges = [];
+            const conditionalEdges = [];
+
             for (let i = 1; i < pages.length; i++) {
-                const prevPage = pages.at(i - 1);
-                const curPage = pages.at(i);
-                nodes.push(curPage);
+                const page = pages.at(i);
+                linearEdges.push([i - 1, i]);
 
-                edges.push([i - 1, i]);
+                const dependencies = this._getDependencies(page);
+                const pageIndex = pageElementIndexToNodeIndex.get(`start${i}`);
 
-                const showIfs = curPage.showIfs.models;
-                for (let showIf of showIfs) {
-                    const rootConditionalNode = showIf.rootConditionalNode;
-                    const allConditionNodes = this._getChildrenConditionalNodes(rootConditionalNode);
-                    // conditionalNodes.push({curPage, allConditionNodes});
-
-                    for (let node of allConditionNodes) {
-                        const criteriaElement = node.get('criteria_element');
-                        if (criteriaElement && criteriaElement >= 0) {
-                            const {pageIndex, elementIndex} = this._findElement(criteriaElement);
-                            edges.push([pageIndex, i]);
-                        }
-                    }
-                }
+                dependencies.forEach(id => {
+                    const dependencyIndex = elementIdToNodeIndex.get(id);
+                    conditionalEdges.add([pageIndex, dependencyIndex]);
+                });
             }
-        }
 
-        return {
-            nodes, 
-            edges,
-            // conditionalNodes
+            return { nodes, linearEdges, conditionalEdges };
+        }
+        else {
+            return { nodes: [], linearEdges: [], conditionalEdges: [] };
+        }
+    },
+
+    _getDependencies(page) {
+        const criteriaElements = new Set();
+
+        const recursiveGetCriteriaElement = (node) => {
+            const criteriaElement = node.get('criteria_element');
+            if (criteriaElement && criteriaElement > 0) {
+                criteriaElements.add(criteriaElement);
+            }
+
+            const children = node.childrenNodes.models;
+            children.forEach(recursiveGetCriteriaElement);
         };
-    },
 
-    _findElement: function(id) {
-        for (let i = 0; i < this.pages.length; i++) {
-            const page = this.pages.at(i);
+        const showIfs = page.showIfs.models;
+        showIfs.forEach(showIf => {
+            const { rootConditionalNode } = showIf;
+            recursiveGetCriteriaElement(rootConditionalNode);
+        });
 
-            for (let j = 0; j < page.elements.length; j++) {
-                const element = page.elements.at(j);
-                if (element.id === id) {
-                    return {
-                        pageIndex: i, 
-                        elementIndex: j
-                    };
-                }
-            }
-        }
-        return {pageIndex: -1, elementIndex: -1};
-    },
-
-    _getChildrenConditionalNodes: function(node) {
-        const nodes = [node];
-
-        const children = node.childrenNodes.models;
-        for (let child of children) {
-            nodes.push(...this._getChildrenConditionalNodes(child));
-        }
-        return nodes;
+        return criteriaElements;
     },
 });
 

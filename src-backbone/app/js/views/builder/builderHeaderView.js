@@ -73,29 +73,61 @@ module.exports = Marionette.ItemView.extend({
     _visualize: function() {
         console.log('visualizing');
 
-        const { nodes, edges } = this.model.generateGraph();
 
-        const nodesStrs = nodes.map((node, index) => {
-            return `node${index}=>operation: Page ${index}`;
-        });
+        // const nodesStrs = nodes.map((node, index) => {
+        //     return `node${index}=>operation: Page ${index}`;
+        // });
 
-        const edgeStrs = edges.map(edge => {
-            const [node1, node2] = edge;
-            return `node${node1}->node${node2}`;            
-        });
+        // const edgeStrs = edges.map(edge => {
+        //     const [node1, node2] = edge;
+        //     return `node${node1}->node${node2}`;            
+        // });
 
-        const flowchartStr = nodesStrs.join('\n') + '\n' + edgeStrs.join('\n');
+        // const flowchartStr = nodesStrs.join('\n') + '\n' + edgeStrs.join('\n');
 
-        console.log(flowchartStr);
+        // console.log(flowchartStr);
 
-        const diagram = flowchart.parse(flowchartStr);
+        // const diagram = flowchart.parse(flowchartStr);
 
         const modalView = new ModalLayoutView({
             title: i18n.t('Flowchart'),
-            bodyView: new FlowchartView(),
+            bodyView: new FlowchartView(this.model),
         });
         App().RootView.showModal(modalView);
 
-        diagram.drawSVG('flowchart');
+
+        const { nodes, edges } = this.model.generateGraph();
+
+        const visNodes = new vis.DataSet(
+            nodes.map((node, index) => (
+                {
+                    id: index,
+                    label: `Page ${index}`
+                }
+            ))
+        );
+
+        const visEdges = new vis.DataSet(
+            edges.map(([node1, node2]) => (
+                {
+                    from: node1,
+                    to: node2,
+                    arrows: 'to',
+                }
+            ))
+        );
+
+        const container = document.getElementById('flowchart');
+        const data = {
+            nodes: visNodes,
+            edges: visEdges
+        };
+        const options = {};
+        const network = new vis.Network(container, data, options);
+        network.on('afterDrawing', () => {
+            network.fit();
+        });
+
+        // diagram.drawSVG('flowchart');
     }
 });

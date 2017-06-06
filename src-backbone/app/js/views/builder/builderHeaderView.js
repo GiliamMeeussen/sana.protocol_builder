@@ -73,22 +73,6 @@ module.exports = Marionette.ItemView.extend({
     _visualize: function() {
         console.log('visualizing');
 
-
-        // const nodesStrs = nodes.map((node, index) => {
-        //     return `node${index}=>operation: Page ${index}`;
-        // });
-
-        // const edgeStrs = edges.map(edge => {
-        //     const [node1, node2] = edge;
-        //     return `node${node1}->node${node2}`;            
-        // });
-
-        // const flowchartStr = nodesStrs.join('\n') + '\n' + edgeStrs.join('\n');
-
-        // console.log(flowchartStr);
-
-        // const diagram = flowchart.parse(flowchartStr);
-
         const modalView = new ModalLayoutView({
             title: i18n.t('Flowchart'),
             bodyView: new FlowchartView(this.model),
@@ -96,26 +80,35 @@ module.exports = Marionette.ItemView.extend({
         App().RootView.showModal(modalView);
 
 
-        const { nodes, edges } = this.model.generateGraph();
+        const { nodes, linearEdges, conditionalEdges } = this.model.generateGraph();
 
         const visNodes = new vis.DataSet(
             nodes.map((node, index) => (
                 {
                     id: index,
-                    label: `Page ${index}`
+                    label: node.label,
+                    shape: 'box',
+                    group: node.page,
+                    widthConstraint: { maximum: 150 }
                 }
             ))
         );
 
-        const visEdges = new vis.DataSet(
-            edges.map(([node1, node2]) => (
-                {
-                    from: node1,
-                    to: node2,
-                    arrows: 'to',
-                }
-            ))
-        );
+        const edges = [
+            ...linearEdges.map(([node1, node2]) => ({
+                from: node1,
+                to: node2,
+                arrows: 'to',
+            })),
+            ...conditionalEdges.map(([node1, node2]) => ({
+                from: node1,
+                to: node2,
+                arrows: 'to',
+                dashes: true
+            }))
+        ];
+
+        const visEdges = new vis.DataSet(edges);
 
         const container = document.getElementById('flowchart');
         const data = {
@@ -124,10 +117,11 @@ module.exports = Marionette.ItemView.extend({
         };
         const options = {};
         const network = new vis.Network(container, data, options);
-        network.on('afterDrawing', () => {
-            network.fit();
-        });
 
-        // diagram.drawSVG('flowchart');
+        const resizer = () => {
+            network.fit();
+            network.off('afterDrawing', resizer);
+        };
+        network.on('afterDrawing', resizer);
     }
 });

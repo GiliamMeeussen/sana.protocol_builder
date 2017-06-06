@@ -111,7 +111,6 @@ module.exports = Marionette.ItemView.extend({
                     widthConstraint: { maximum: 150 }
                 },
             ]
-
         );
 
         const edges = [

@@ -12,6 +12,7 @@ module.exports = {
         require('bootstrap');
         require('bootstrap-datepicker');
         require('bootstrap-select');
+        global.vis = require('vis');
 
         global._ = require('underscore');
         global.Backbone = require('backbone');

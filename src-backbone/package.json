@@ -67,6 +67,7 @@
     "jquery-ui": "^1.10.5",
     "jquery-ui-sortable-npm": "^1.0.0",
     "moment": "^2.11.2",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "vis": "^4.20.0"
   }
 }

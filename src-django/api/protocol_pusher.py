@@ -1,6 +1,8 @@
 from django.db import transaction
 from pyfcm import FCMNotification
 
+from api.models import Device
+
 class ProcedurePusher:
 	@staticmethod
 	def push_procedure_to_devices(owner, procedure_id):
@@ -11,10 +13,11 @@ class ProcedurePusher:
 		data_message = {
 			"type": "newProcedure",
 			"procedureId": procedure_id,
-			"fetchUrl": "placeholder lol",
+			"fetchUrl": "http://192.168.43.158:8000/api/procedures",
 		}
 
-		registration_ids = ["f9wG7RTPY5k:APA91bEn1VI8LGoAGtHJVrQ5Ui-cMsHkTogVdFmTwiG-7p7PYwmAp9iiFwRDHVSJsv4zsEeoDu31HQEd9gUXuaVvs5Vt39LdMpfE4dOzxXXznk3ppkAc207TcIKTHmf5WmKhws7hFYks"]
+		registration_ids = Device.objects.all().values_list('registration_id', flat=True)
+		registration_ids = [i.encode('ascii','ignore') for i in registration_ids]
 
 		result = push_service.notify_multiple_devices(registration_ids=registration_ids, data_message=data_message)
 

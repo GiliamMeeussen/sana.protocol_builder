@@ -363,4 +363,4 @@ class ShowIfViewSet(viewsets.ModelViewSet):
 class DeviceViewSet(viewsets.ModelViewSet):
     model = models.Device
     serializer_class = serializer.DeviceSerializer
-    queryset = User.objects.all()
+    queryset = models.Device.objects.all()

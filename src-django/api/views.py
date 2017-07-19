@@ -359,3 +359,8 @@ class ShowIfViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return models.ShowIf.objects.filter(page__procedure__owner_id__exact=user.id)
+
+class DeviceViewSet(viewsets.ModelViewSet):
+    model = models.Device
+    serializer_class = serializer.DeviceSerializer
+    queryset = User.objects.all()

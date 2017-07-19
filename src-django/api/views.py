@@ -9,6 +9,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.cache import cache
 
 from api.xml_importer import ProtocolImporter
+from api.protocol_pusher import ProcedurePusher
 from generator import ProtocolBuilder
 from mailer import templater, tasks
 import models
@@ -50,6 +51,15 @@ class ProcedureViewSet(viewsets.ModelViewSet):
     def import_from_xml(self, request):
         try:
             ProtocolImporter.from_xml(request.user, request.data['filecontent'])
+        except Exception as e:
+            return HttpResponseBadRequest(str(e))
+
+        return HttpResponse(status=status.HTTP_200_OK)
+
+    @list_route(methods=['POST'])
+    def push_to_devices(self, request): 
+        try:
+            ProcedurePusher.push_procedure_to_devices(request.user, request.data['id'])
         except Exception as e:
             return HttpResponseBadRequest(str(e))
 

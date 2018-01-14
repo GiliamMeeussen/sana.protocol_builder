@@ -1,4 +1,4 @@
-UPDATE api_concept SET name=(name || uuid), display_name=(display_name || uuid)
+UPDATE api_concept SET name=(name || id), display_name=(display_name || id)
 WHERE name IN (
     SELECT duplicates.name from (
         SELECT name, count(*)

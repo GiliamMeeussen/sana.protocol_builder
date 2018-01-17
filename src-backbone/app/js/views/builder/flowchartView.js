@@ -1,46 +1,14 @@
 const FlowchartJS = require('flowchart.js');
-const $ = require('jquery');
 
 module.exports = Marionette.LayoutView.extend({
 
     template: require('templates/builder/flowchartView'),
-
-  //   onAttach: function() {
-		// const { nodes, linearEdges, conditionalEdges } = this.model.generateGraph();
-
-		// const graphNodes = nodes.map((node, index) => {
-		// 	return `node${index}=>operation: ${node.label}`;
-		// });
-
-		// const graphLinearEdges = linearEdges.map(([node1, node2]) => {
-		// 	return `node${node1}->node${node2}`;
-		// });
-
-		// // TODO conditionalEdges
-
-  //       const lines = [
-  //           'st=>start: Start',
-  //           ...nodes.map((node, index) => {
-  //               const nodeStr = `node${index}=>operation: ${node.label}`;
-  //               const edgeStr = index === 0 ? `st->node${index}` : `node${index - 1}->node${index}`;
-  //               return nodeStr + '\n' + edgeStr;
-  //           }),
-  //           'e=>end: End',
-  //           nodes.length === 0 ? 'st->e' : `node${nodes.length - 1}->e`
-  //       ].join('\n');
-
-  //   	const diagram = FlowchartJS.parse(lines);
-  //   	setTimeout(() => {
-  // 			diagram.drawSVG('flowchart');
-  // 		}, 500);
-  //   },
 
   	onAttach: function() {
   		const getFirstCondition = node => {
   			if (!node) {
   				return '';
   			}
-
 
   			let condition;
   			if (!(node.isCriteriaNode() && node.get('criteria_element') > 0)) {
@@ -59,7 +27,7 @@ module.exports = Marionette.LayoutView.extend({
 
   			for (let child of node.childrenNodes.models) {
   				condition = getFirstCondition(child);
-  				if (condition != '') {
+  				if (condition !== '') {
   					return condition;
   				}
   			}
@@ -80,7 +48,6 @@ module.exports = Marionette.LayoutView.extend({
 		    strs.push(str);
 		    return strs.join('\n');
 		};
-
 		const lineLength = 30;
 
 

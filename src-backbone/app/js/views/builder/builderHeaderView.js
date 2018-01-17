@@ -74,83 +74,120 @@ module.exports = Marionette.ItemView.extend({
         console.log('visualizing');
 
         const modalView = new ModalLayoutView({
-            title: i18n.t(
-                'Flowchart - Solid arrows represent the next question in sequential order. ' +
-                'Dashed arrows represent a condition depending on a previous question.'
-            ),
-            bodyView: new FlowchartView(this.model),
+            title: i18n.t('Flowchart'),
+            bodyView: new FlowchartView({model: this.model}),
         });
         App().RootView.showModal(modalView);
 
+        // const { nodes, linearEdges, conditionalEdges } = this.model.generateGraph();
 
-        const { nodes, linearEdges, conditionalEdges } = this.model.generateGraph();
 
-        const visNodes = new vis.DataSet(
-            [
-                {
-                    id: -1,
-                    label: 'Start',
-                    shape: 'box',
-                    group: -1,
-                    widthConstraint: { maximum: 150 }
-                },
-                ...nodes.map((node, index) => (
-                    {
-                        id: index,
-                        label: node.label,
-                        shape: 'box',
-                        group: node.page,
-                        widthConstraint: { maximum: 150 }
-                    }
-                )),
-                {
-                    id: -2,
-                    label: 'End',
-                    shape: 'box',
-                    group: -2,
-                    widthConstraint: { maximum: 150 }
-                },
-            ]
-        );
+        // const lines = [
+        //     'st=>start: Start',
+        //     ...nodes.map((node, index) => {
+        //         const nodeStr = `node${index}=>operation: ${node.label}`;
+        //         const edgeStr = index === 0 ? `st->node${index}` : `node${index - 1}->node${index}`;
+        //         return nodeStr + '\n' + edgeStr;
+        //     }),
+        //     'e=>end: End',
+        //     nodes.length === 0 ? 'st->e' : `node${nodes.length - 1}->e`
+        // ].join('\n');
 
-        const edges = [
-            ...linearEdges.map(([node1, node2]) => ({
-                from: node1,
-                to: node2,
-                arrows: 'to',
-            })),
-            ...conditionalEdges.map(([node1, node2]) => ({
-                from: node1,
-                to: node2,
-                arrows: 'to',
-                dashes: true
-            })),
-            {
-                from: -1,
-                to: 0,
-                arrows: 'to'
-            },
-            {
-                from: nodes.length - 1,
-                to: -2,
-                arrows: 'to'
-            },
-        ];
 
-        const visEdges = new vis.DataSet(edges);
+        // const diagram = FlowchartJS.parse(lines);
 
-        const container = document.getElementById('flowchart');
-        const data = {
-            nodes: visNodes,
-            edges: visEdges
-        };
-        const options = {};
-        const network = new vis.Network(container, data, options);
+        // diagram.drawSVG('flowchart');
 
-        const resizer = () => {
-            network.fit();
-            network.off('afterDrawing', resizer);
-        };
-        network.on('afterDrawing', resizer);
+
+
+
+        // const visNodes = new vis.DataSet(
+        //     [
+        //         {
+        //             id: -1,
+        //             label: 'Start',
+        //             shape: 'box',
+        //             group: -1,
+        //             widthConstraint: { maximum: 150 }
+        //         },
+        //         ...nodes.map((node, index) => (
+        //             {
+        //                 id: index,
+        //                 label: node.label,
+        //                 shape: 'box',
+        //                 group: node.page,
+        //                 widthConstraint: { maximum: 150 }
+        //             }
+        //         )),
+        //         {
+        //             id: -2,
+        //             label: 'End',
+        //             shape: 'box',
+        //             group: -2,
+        //             widthConstraint: { maximum: 150 }
+        //         },
+        //     ]
+        // );
+
+        // const edges = [
+        //     ...linearEdges.map(([node1, node2]) => ({
+        //         from: node1,
+        //         to: node2,
+        //         arrows: 'to',
+        //     })),
+        //     ...conditionalEdges.map(([node1, node2]) => ({
+        //         from: node1,
+        //         to: node2,
+        //         arrows: 'to',
+        //         dashes: true
+        //     })),
+        //     {
+        //         from: -1,
+        //         to: 0,
+        //         arrows: 'to'
+        //     },
+        //     {
+        //         from: nodes.length - 1,
+        //         to: -2,
+        //         arrows: 'to'
+        //     },
+        // ];
+
+        // const visEdges = new vis.DataSet(edges);
+
+        // const container = document.getElementById('flowchart');
+        // const data = {
+        //     nodes: visNodes,
+        //     edges: visEdges
+        // };
+        // const options = {
+        //     physics: {
+        //         forceAtlas2Based: {
+        //             gravitationalConstant: -26,
+        //             centralGravity: 0.005,
+        //             springLength: 230,
+        //             springConstant: 0.18,
+        //             avoidOverlap: 1.5
+        //         },
+        //         maxVelocity: 146,
+        //         solver: 'forceAtlas2Based',
+        //         timestep: 0.35,
+        //         stabilization: {
+        //             enabled: true,
+        //             iterations: 1000,
+        //             updateInterval: 25
+        //         }
+        //     }
+        // };
+        // const network = new vis.Network(container, data, options);
+
+        // network.on("stabilizationIterationsDone", () => {
+        //     network.setOptions( { physics: false } );
+        // });
+
+        // network.on('afterDrawing', () => {
+        //     network.fit();
+        //     network.off('afterDrawing', resizer);
+        // });
     }
 });

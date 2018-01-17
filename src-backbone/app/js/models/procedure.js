@@ -149,82 +149,95 @@ let Procedure = Backbone.Model.extend({
         });
     },
 
-    _preprocessNodes(pages) {
-        const nodes = [];
-        const pageElementIndexToNodeIndex = new Map();
-        const elementIdToNodeIndex = new Map();
+    // generateGraph: function() {
+    //     const nodes = [];
 
-        pages.forEach((page, i) => {
-            const elements = page.elements.models;
-            elements.forEach((element, j) => {
-                nodes.push({
-                    label: element.get('question'),
-                    page: i
-                });
-                pageElementIndexToNodeIndex.set(`${i},${j}`, nodes.length - 1);
-                elementIdToNodeIndex.set(element.id, nodes.length - 1);
+    //     let index = 0;
+    //     pages.forEach((page, pageIndex) => {
+    //         page.elements.models.forEach((element, elementIndex) => {
+    //             nodes.push({ index, pageIndex, elementIndex, page, element });
+    //             index++;
+    //         });
+    //     });
 
-                if (j === 0) {
-                    pageElementIndexToNodeIndex.set(`start${i}`, nodes.length - 1);
-                }
-            });
-        });
+    //     return nodes;
+    // },
 
-        return { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex };
-    },
+    // _preprocessNodes(pages) {
+    //     const nodes = [];
+    //     const pageElementIndexToNodeIndex = new Map();
+    //     const elementIdToNodeIndex = new Map();
 
-    generateGraph() {
-        const pages = this.pages;
+    //     pages.forEach((page, i) => {
+    //         const elements = page.elements.models;
+    //         elements.forEach((element, j) => {
+    //             nodes.push({
+    //                 label: element.get('question'),
+    //                 page: i
+    //             });
+    //             pageElementIndexToNodeIndex.set(`${i},${j}`, nodes.length - 1);
+    //             elementIdToNodeIndex.set(element.id, nodes.length - 1);
 
-        if (pages.length > 0) {
-            const { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex } = this._preprocessNodes(pages);
+    //             if (j === 0) {
+    //                 pageElementIndexToNodeIndex.set(`start${i}`, nodes.length - 1);
+    //             }
+    //         });
+    //     });
 
-            const linearEdges = [];
-            for (let i = 1; i < nodes.length; i++) {
-                linearEdges.push([i - 1, i]);
-            }
+    //     return { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex };
+    // },
 
-            const conditionalEdges = [];
-            for (let i = 1; i < pages.length; i++) {
-                const page = pages.at(i);
+    // generateGraph() {
+    //     const pages = this.pages;
 
-                const dependencies = this._getDependencies(page);
-                const pageIndex = pageElementIndexToNodeIndex.get(`start${i}`);
+    //     if (pages.length > 0) {
+    //         const { nodes, pageElementIndexToNodeIndex, elementIdToNodeIndex } = this._preprocessNodes(pages);
 
-                dependencies.forEach(id => {
-                    const dependencyIndex = elementIdToNodeIndex.get(id);
-                    conditionalEdges.push([pageIndex, dependencyIndex]);
-                });
-            }
+    //         const linearEdges = [];
+    //         for (let i = 1; i < nodes.length; i++) {
+    //             linearEdges.push([i - 1, i]);
+    //         }
 
-            return { nodes, linearEdges, conditionalEdges };
-        }
-        else {
-            return { nodes: [], linearEdges: [], conditionalEdges: [] };
-        }
-    },
+    //         const conditionalEdges = [];
+    //         for (let i = 1; i < pages.length; i++) {
+    //             const page = pages.at(i);
 
-    _getDependencies(page) {
-        const criteriaElements = new Set();
+    //             const dependencies = this._getDependencies(page);
+    //             const pageIndex = pageElementIndexToNodeIndex.get(`start${i}`);
 
-        const recursiveGetCriteriaElement = (node) => {
-            const criteriaElement = node.get('criteria_element');
-            if (criteriaElement && criteriaElement > 0) {
-                criteriaElements.add(criteriaElement);
-            }
+    //             dependencies.forEach(id => {
+    //                 const dependencyIndex = elementIdToNodeIndex.get(id);
+    //                 conditionalEdges.push([pageIndex, dependencyIndex]);
+    //             });
+    //         }
 
-            const children = node.childrenNodes.models;
-            children.forEach(recursiveGetCriteriaElement);
-        };
+    //         return { nodes, linearEdges, conditionalEdges };
+    //     }
+    //     else {
+    //         return { nodes: [], linearEdges: [], conditionalEdges: [] };
+    //     }
+    // },
 
-        const showIfs = page.showIfs.models;
-        showIfs.forEach(showIf => {
-            const { rootConditionalNode } = showIf;
-            recursiveGetCriteriaElement(rootConditionalNode);
-        });
+    // _getDependencies(page) {
+    //     const criteriaElements = new Set();
 
-        return criteriaElements;
-    },
+    //     const recursiveGetCriteriaElement = (node) => {
+    //         const criteriaElement = node.get('criteria_element');
+    //         if (criteriaElement && criteriaElement > 0) {
+    //             criteriaElements.add(criteriaElement);
+    //         }
+
+    //         const children = node.childrenNodes.models;
+    //         children.forEach(recursiveGetCriteriaElement);
+    //     };
+
+    //     const showIfs = page.showIfs.models;
+    //     showIfs.forEach(showIf => {
+    //         recursiveGetCriteriaElement(showIf.rootConditionalNode);
+    //     });
+
+    //     return criteriaElements;
+    // },
 });
 
 Procedure.ACTIVE_PAGE_CHANGE_EVENT = ACTIVE_PAGE_CHANGE_EVENT;

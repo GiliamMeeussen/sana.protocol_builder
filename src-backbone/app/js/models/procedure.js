@@ -148,6 +148,7 @@ let Procedure = Backbone.Model.extend({
             },
         });
     },
+    
 });
 
 Procedure.ACTIVE_PAGE_CHANGE_EVENT = ACTIVE_PAGE_CHANGE_EVENT;

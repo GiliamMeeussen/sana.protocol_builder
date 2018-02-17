@@ -9,7 +9,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.cache import cache
 
 from api.xml_importer import ProtocolImporter
-from api.protocol_pusher import ProcedurePusher
+from api import protocol_pusher
 from generator import ProtocolBuilder
 from mailer import templater, tasks
 import models
@@ -59,7 +59,7 @@ class ProcedureViewSet(viewsets.ModelViewSet):
     @list_route(methods=['POST'])
     def push_to_devices(self, request): 
         try:
-            ProcedurePusher.push_procedure_to_devices(request.user, request.data['id'])
+            protocol_pusher.push_procedure_to_devices(request.user, request.data['id'])
         except Exception as e:
             return HttpResponseBadRequest(str(e))
 

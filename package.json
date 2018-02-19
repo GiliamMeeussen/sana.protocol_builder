@@ -1,0 +1,15 @@
+{
+  "name": "placeholder",
+  "version": "1.0.0",
+  "description": "placeholder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiliamMeeussen/sana.protocol_builder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GiliamMeeussen/sana.protocol_builder/issues"
+  },
+  "homepage": "https://github.com/GiliamMeeussen/sana.protocol_builder#readme"
+}

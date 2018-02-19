@@ -1,2 +1,2 @@
 node: cd src-backbone && npm install --production
-python: cd src-django && pip install -r requirements.txt && gunicorn sanaprotocolbuilder.wsgi:application --bind 127.0.0.1:4888
+python: cd src-django && gunicorn sanaprotocolbuilder.wsgi:application --bind 127.0.0.1:8000

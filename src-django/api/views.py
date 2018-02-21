@@ -2,6 +2,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from django.db.utils import DatabaseError
 from postgres_copy import CopyMapping
@@ -21,10 +22,16 @@ import uuid
 
 class ProcedureViewSet(viewsets.ModelViewSet):
     model = models.Procedure
+    # TODO Security: Allow any user (even unauthenticated) to get procedures
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         user = self.request.user
-        return models.Procedure.objects.filter(owner=user)
+        if user.is_authenticated():
+            return models.Procedure.objects.filter(owner=user)
+        else:  
+            # TODO Security: Allow any user (even unauthenticated) to get procedures
+            return models.Procedure.objects
 
     def get_serializer_class(self):
         request_flag = 'only_return_id'
@@ -57,7 +64,7 @@ class ProcedureViewSet(viewsets.ModelViewSet):
         return HttpResponse(status=status.HTTP_200_OK)
 
     @list_route(methods=['POST'])
-    def push_to_devices(self, request): 
+    def push_to_devices(self, request):
         try:
             protocol_pusher.push_procedure_to_devices(request.user, request.data['id'])
         except Exception as e:
@@ -135,7 +142,7 @@ class UserPasswordViewSet(viewsets.GenericViewSet):
     serializer_class = serializer.UserSerializer
     authentication_classes = (())
     permission_classes = (())
-    PASSWORD_RESET_EXPIRY = 86400*2  # 2 days
+    PASSWORD_RESET_EXPIRY = 86400 * 2  # 2 days
 
     def error_response(self, response_status, msg):
         return JsonResponse(
@@ -360,7 +367,10 @@ class ShowIfViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return models.ShowIf.objects.filter(page__procedure__owner_id__exact=user.id)
 
+
 class DeviceViewSet(viewsets.ModelViewSet):
+    # TODO Security: Allow any user (even unauthenticated) to register their device
+    permission_classes = (AllowAny,)
     model = models.Device
     serializer_class = serializer.DeviceSerializer
     queryset = models.Device.objects.all()

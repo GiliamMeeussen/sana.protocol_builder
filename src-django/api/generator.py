@@ -225,8 +225,9 @@ class ProtocolBuilder:
         except Procedure.DoesNotExist:
             raise ValueError('Invalid procedure id')
 
-        if procedure.owner != owner:
-            raise ValueError('Invalid owner')
+        # TODO Security issue: Allow any user (even unauthenticated) to acccess any procedure
+        # if procedure.owner != owner:
+        #     raise ValueError('Invalid owner')
 
         procedure_etree_element = ProcedureGenerator(procedure).generate()
 

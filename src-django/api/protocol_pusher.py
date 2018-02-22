@@ -6,10 +6,8 @@ from api.models import Device
 
 def push_procedure_to_devices(owner, procedure_id):
     # api_key from https://console.firebase.google.com/project/sanamobile-1f7b1/settings/general/
-    # TODO Security: API Key is on GitHub in public repo
     push_service = FCMNotification(
-        api_key="AAAAJCZMnrI:APA91bFf-aYOjlH3LeQIi0W9vNZBJay5V9t7zuFiZMKGQNDddj7nSwbVTD2iTPE73AdI8zcKA"
-                "-K88cJX4coGLYuJTHpb5gImAHg2Szu8bbTUdnoiTQg6mms0BN6WgZ-oa6N4avqhEUyj "
+        api_key="FILL API KEY HERE"
     )
 
     # create a data message

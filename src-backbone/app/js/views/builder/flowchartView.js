@@ -1,3 +1,4 @@
+
 const FlowchartJS = require('flowchart.js');
 
 module.exports = Marionette.LayoutView.extend({
@@ -34,14 +35,22 @@ module.exports = Marionette.LayoutView.extend({
             return '';
         };
 
-        const splitStringIntoLines = (str, l) =>{
-            var strs = [];
-            while(str.length > l){
-                var pos = str.substring(0, l).lastIndexOf(' ');
+        /**
+         * Splits a string into lines using '\n',
+         * with each line up to `l` characters long
+         *
+         * @param str input string
+         * @param l max chars per line
+         * @returns {string} single string with newline characters
+         */
+        const splitStringIntoLines = (str, l) => {
+            const strs = [];
+            while (str.length > l) {
+                let pos = str.substring(0, l).lastIndexOf(' ');
                 pos = pos <= 0 ? l : pos;
                 strs.push(str.substring(0, pos));
-                var i = str.indexOf(' ', pos)+1;
-                if(i < pos || i > pos+l)
+                let i = str.indexOf(' ', pos) + 1;
+                if (i < pos || i > pos + l)
                     i = pos;
                 str = str.substring(i);
             }
